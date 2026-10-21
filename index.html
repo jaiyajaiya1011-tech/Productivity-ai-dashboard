@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProductivityAI Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <h2>✦ Productivity<span>AI</span></h2>
+
+    <nav>
+      <button onclick="showPage('dashboard')">🏠 Dashboard</button>
+      <button onclick="showPage('tasks')">☑ My Tasks</button>
+      <button onclick="showPage('goals')">🎯 My Goals</button>
+      <button onclick="showPage('focus')">⏱ Focus Timer</button>
+      <button onclick="showPage('analytics')">📊 Analytics</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <p>✨ Small steps. Big results.</p>
+      <button onclick="toggleTheme()">🌙 Change Theme</button>
+      <button onclick="exportTasks()">⬇ Export Tasks</button>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">YOUR PERSONAL WORKSPACE</p>
+        <h1 id="greeting">Welcome back! ✨</h1>
+        <p id="todayDate"></p>
+      </div>
+      <button class="add-button" onclick="openTaskForm()">＋ Add Task</button>
+    </header>
+
+    <section id="dashboard" class="page active">
+      <div class="hero">
+        <div>
+          <p>✦ YOUR DAILY PRODUCTIVITY</p>
+          <h2>Make today<br><span>count.</span></h2>
+          <p>Every small step takes you closer to your goals.</p>
+          <button onclick="showPage('tasks')">Explore My Tasks →</button>
+        </div>
+        <div class="hero-icon">✦</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <p>Tasks Completed</p>
+          <h2 id="completedCount">0</h2>
+          <small>Little wins matter</small>
+        </div>
+        <div class="stat-card">
+          <p>Completion Rate</p>
+          <h2 id="completionRate">0%</h2>
+          <small>Your task progress</small>
+        </div>
+        <div class="stat-card">
+          <p>Active Goals</p>
+          <h2 id="activeGoals">0</h2>
+          <small>Keep moving forward</small>
+        </div>
+        <div class="stat-card">
+          <p>Focus Minutes</p>
+          <h2 id="focusMinutes">0</h2>
+          <small>Time spent focusing</small>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-heading">
+            <div>
+              <h3>Today's Tasks</h3>
+              <p>Your next steps start here.</p>
+            </div>
+            <button class="text-button" onclick="showPage('tasks')">View All →</button>
+          </div>
+          <div id="dashboardTasks"></div>
+          <button class="outline-button" onclick="openTaskForm()">＋ Add another task</button>
+        </div>
+
+        <div class="card focus-card">
+          <h3>Focus Session</h3>
+          <p>Give one task your full attention.</p>
+          <div class="mini-timer" id="miniTimer">25:00</div>
+          <button class="add-button" onclick="startTimer()">▶ Start / Pause</button>
+          <button class="outline-button" onclick="resetTimer()">↻ Reset Timer</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Weekly Productivity</h3>
+          <p>Completed tasks over the last seven days.</p>
+          <div class="chart-container">
+            <canvas id="weeklyChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card assistant-card">
+          <h3>✦ Smart Recommendations</h3>
+          <p>Suggestions based on your tasks and progress.</p>
+          <div id="recommendation" class="recommendation"></div>
+          <button class="outline-button" onclick="generateRecommendation()">↻ New Recommendation</button>
+          <small>Rule-based suggestions; no external AI service required.</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="tasks" class="page">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">PLAN YOUR PROGRESS</p>
+          <h2>My Tasks ☑</h2>
+          <p>Organize your day, one task at a time.</p>
+        </div>
+        <button class="add-button" onclick="openTaskForm()">＋ New Task</button>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <input id="taskSearch" type="search" placeholder="Search tasks..." oninput="renderTasks()">
+          <select id="taskFilter" onchange="renderTasks()">
+            <option value="all">All tasks</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div id="allTasks"></div>
+      </div>
+    </section>
+
+    <section id="goals" class="page">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">THINK BIG, START SMALL</p>
+          <h2>My Goals 🎯</h2>
+          <p>Track your milestones and celebrate progress.</p>
+        </div>
+        <button class="add-button" onclick="addGoal()">＋ Add Goal</button>
+      </div>
+      <div class="stats">
+        <div class="stat-card"><p>Total Goals</p><h2 id="goalTotal">0</h2></div>
+        <div class="stat-card"><p>Completed Goals</p><h2 id="goalCompleted">0</h2></div>
+      </div>
+      <div id="goalList" class="goal-grid"></div>
+    </section>
+
+    <section id="focus" class="page">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">PROTECT YOUR ATTENTION</p>
+          <h2>Focus Mode ⏱</h2>
+          <p>Choose a session and focus on one thing.</p>
+        </div>
+      </div>
+
+      <div class="card timer-card">
+        <div class="timer-modes">
+          <button onclick="setTimer(25)">Focus · 25 min</button>
+          <button onclick="setTimer(5)">Short break · 5 min</button>
+          <button onclick="setTimer(15)">Long break · 15 min</button>
+        </div>
+        <div id="bigTimer" class="big-timer">25:00</div>
+        <p id="timerStatus">Ready when you are.</p>
+        <button class="add-button" onclick="startTimer()">▶ Start / Pause</button>
+        <button class="outline-button" onclick="resetTimer()">↻ Reset</button>
+        <p class="muted">Completed focus sessions: <strong id="sessionCount">0</strong></p>
+      </div>
+    </section>
+
+    <section id="analytics" class="page">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">YOUR EFFORT IN NUMBERS</p>
+          <h2>Analytics 📊</h2>
+          <p>Understand your productivity at a glance.</p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card"><p>Total Tasks</p><h2 id="totalTasksAnalytics">0</h2></div>
+        <div class="stat-card"><p>Completed</p><h2 id="doneTasksAnalytics">0</h2></div>
+        <div class="stat-card"><p>Focus Sessions</p><h2 id="analyticsSessions">0</h2></div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Weekly Task Activity</h3>
+          <div class="chart-container"><canvas id="analyticsChart"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>Task Status</h3>
+          <div class="chart-container"><canvas id="statusChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>✦ ProductivityAI <span>Progress, not perfection.</span></footer>
+  </main>
+</div>
+
+<div id="taskModal" class="modal-overlay">
+  <form id="taskForm" class="modal">
+    <button type="button" class="close-button" onclick="closeTaskForm()">×</button>
+    <p class="eyebrow">YOUR NEXT SMALL WIN</p>
+    <h2 id="formTitle">Create a Task</h2>
+
+    <label for="taskTitle">Task Name</label>
+    <input id="taskTitle" maxlength="100" required placeholder="e.g. Practice JavaScript">
+
+    <label for="taskDetails">Details</label>
+    <textarea id="taskDetails" maxlength="300" placeholder="Add a few details (optional)"></textarea>
+
+    <div class="form-row">
+      <div>
+        <label for="taskPriority">Priority</label>
+        <select id="taskPriority">
+          <option>Medium</option>
+          <option>High</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div>
+        <label for="taskDue">Due Date</label>
+        <input type="date" id="taskDue">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="outline-button" onclick="closeTaskForm()">Cancel</button>
+      <button type="submit" class="add-button">Save Task</button>
+    </div>
+  </form>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
